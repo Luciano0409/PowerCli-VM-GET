@@ -2,7 +2,8 @@ param (
     [string]$vmFilter,
     [string]$user,
     [string]$password,
-    [string]$server
+    [string]$server,
+    [switch]$testConnection
 )
 
 # Suprimir avisos e definir a configuração do PowerCLI
@@ -18,8 +19,20 @@ Set-PowerCLIConfiguration -InvalidCertificateAction Ignore -Scope Session -Confi
 $securePassword = ConvertTo-SecureString -String $password -AsPlainText -Force
 $cred = New-Object System.Management.Automation.PSCredential($user, $securePassword)
 
-# Conectar ao servidor VMware
-$null = Connect-VIServer -Server $server -Credential $cred
+
+# Tentar conectar ao servidor VMware
+try {
+    $connection = Connect-VIServer -Server $server -Credential $cred -ErrorAction Stop
+    if ($testConnection) {
+        Disconnect-VIServer -Confirm:$false
+        Write-Output "True"
+        exit 0
+    }
+} catch {
+    Write-Output "False"
+    exit 1
+}
+
 
 # Inicializar a lista de dicionários
 $vmList = @()
