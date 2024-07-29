@@ -51,6 +51,7 @@ Get-VM | ForEach-Object {
     $snapshots = Get-Snapshot -VM $vm
     $oldestSnapshot = $snapshots | Sort-Object -Property Created | Select-Object -First 1
     $snapshotDate = if ($oldestSnapshot) { $oldestSnapshot.Created } else { "No Snapshots" }
+    $snapshotDateUnix = if ($oldestSnapshot) { [int][double]::Parse((Get-Date $oldestSnapshot.Created -UFormat %s)) } else { 0 } # Formata a data para Unixtime
     $snapshotCount = $snapshots.Count # Quatidade de snapshot existente
 
 
@@ -61,11 +62,12 @@ Get-VM | ForEach-Object {
     # Verificar se a maquina esta ligada no host
     $poweredOn = if ($vm.PowerState -eq "PoweredOn") { "True" } else { "False" }
 
-
+    # Adicionar o valores coletados no dicionario
     $vmList += @{
         "{#NAME}" = $vmName
         "poweredOn" = $poweredOn
         "OldestSnapshotDate" = $snapshotDate
+        "OldestSnapshotDateUnix" = $snapshotDateUnix
         "SnapshotCount" = $snapshotCount
         "NeedsConsolidation" = $needsConsolidation
     }
