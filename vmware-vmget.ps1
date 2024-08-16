@@ -19,6 +19,8 @@ Set-PowerCLIConfiguration -InvalidCertificateAction Ignore -Scope Session -Confi
 $securePassword = ConvertTo-SecureString -String $password -AsPlainText -Force
 $cred = New-Object System.Management.Automation.PSCredential($user, $securePassword)
 
+ # Coletar o sistema operacional
+ $osFullName = $vm.Guest.OSFullName
 
 # Tentar conectar ao servidor VMware
 try {
@@ -70,6 +72,7 @@ Get-VM | ForEach-Object {
         "OldestSnapshotDateUnix" = $snapshotDateUnix
         "SnapshotCount" = $snapshotCount
         "NeedsConsolidation" = $needsConsolidation
+        "OSFullName" = $osFullName
     }
 
 }
